@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <CheckBox
+        android:id="@+id/chatgroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/chatgroup"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="40dp"/>
+
+    <CheckBox
+        android:id="@+id/personalstorage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/personalstorage"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="40dp"/>
+
+    <CheckBox
+        android:id="@+id/hashaddressmapping"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hashaddressmapping"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="40dp" />
+    <Button
+        android:id="@+id/createBtn"
+        android:text="@string/createBtn"
+        android:textSize="18dp"
+        android:textAllCaps="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:layout_marginLeft="10dp"/>
+    <Button
+        android:id="@+id/restartBtn"
+        android:textAllCaps="false"
+        android:text="@string/restartBtn"
+        android:textSize="18dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:layout_marginLeft="200dp"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/txt_event"
+        android:layout_marginTop="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:textColor="@android:color/holo_green_light"/>
+</FrameLayout>
