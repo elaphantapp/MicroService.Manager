@@ -18,11 +18,11 @@ public class PeerNodeListener {
 
     public interface DataListener {
         void onNotify(String humanCode, Contact.Channel channelType,
-                      String dataId, Contact.DataListener.Status status);
+                                      String dataId, Contact.DataListener.Status status);
         int onReadData(String humanCode, Contact.Channel channelType,
-                       String dataId, long offset, ByteBuffer data);
+                                       String dataId, long offset, ByteBuffer data);
         int onWriteData(String humanCode, Contact.Channel channelType,
-                        String dataId, long offset, byte[] data);
+                                        String dataId, long offset, byte[] data);
     }
 
 

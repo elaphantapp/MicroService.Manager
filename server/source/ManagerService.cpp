@@ -7,6 +7,7 @@
 #include <stack>
 #include <iostream>
 #include <ctime>
+#include <dlfcn.h>
 
 using namespace std;
 #include <thread>
@@ -18,10 +19,24 @@ using namespace std;
 #include "Command/ManagerServiceCmd.hpp"
 #include "ManagerService.h"
 #include "ErrCode.h"
+
 namespace micro_service {
     /***********************************************/
     /***** static function implement ***************/
     /***********************************************/
+    static std::string getLibraryPath(const std::string& name)
+    {
+        Dl_info dl_info;
+        dladdr((void*)getLibraryPath, &dl_info);
+        std::string mgrServicePath = dl_info.dli_fname;
+
+        std::string servicePath = std::regex_replace(dl_info.dli_fname, std::regex("MicroServiceManager"), name);
+
+        std::cout << "Launch service " << name << " from path: " << servicePath << '\n';
+
+        return servicePath;
+    }
+
     static std::string toLower(const std::string& str)
     {
         std::string ret(str.size(), 'a');
@@ -41,6 +56,7 @@ namespace micro_service {
 
     int ManagerService::start() {
         if (mConnector == NULL) return -1;
+
         printf("Service start!\n");
         std::shared_ptr<PeerListener::MessageListener> message_listener = std::make_shared<ManagerServiceMessageListener>(this);
         mConnector->SetMessageListener(message_listener);
@@ -65,8 +81,8 @@ namespace micro_service {
         //generate random dir
         unsigned seed = this->getTimeStamp();
         srand(seed);
-        std::string service_path = mPath +"/"+std::to_string(random())+"/";
-        std::string info_file_path = service_path +"/info.txt";
+        std::string service_path = mPath;
+        std::string info_file_path = service_path + "/info-" + std::to_string(random()) + ".txt";
         FileUtils::mkdirs(service_path.c_str(), 0777);
         this->startServiceInner(friend_id, mnemonic, service_name, service_path, info_file_path);
     }
@@ -113,37 +129,40 @@ namespace micro_service {
             const std::string& mnemonic) {
         std::string private_key = this->getPrivateKey(mnemonic);
         //get libxxxservice.so path by service_name
-        std::string library_path = "";
+        std::string libraryName = "";
         std::string service_name_tolower = toLower(service_name);
         std::string error_msg = "success";
         int ret_status = 0;
         if (service_name_tolower == "personalstorage") {
-            library_path = "./libs/libLocalStorageService.so";
+            libraryName = "LocalStorageService";
         } else if (service_name_tolower == "chatgroup") {
-            library_path = "./libs/libChatGroupService.so";
+            libraryName = "ChatGroupService";
         } else if (service_name_tolower == "hashaddressmapping") {
-            library_path = "./libs/libHashAddressMappingService.so";
+            libraryName = "HashAddressMappingService";
         } else {
             ret_status = -1;
             error_msg = "error service name is unknown";
             printf("service_name is unknown\n");
         }
 
+        std::string libraryPath = getLibraryPath(libraryName);
         char *nargv[] = {(char*)"PeerNodeLauncher",
-                         (char*)"-name", (char *) library_path.c_str(),
+                         (char*)"-name", (char *) libraryPath.c_str(),
                          (char*)"-path", (char *) data_path.c_str(),
                          (char*)"-key", (char *) private_key.c_str(),
-                         (char*)"-info", (char *) info_path.c_str(),
+                         (char*)"-infopath", (char *) info_path.c_str(),
                          (char*) 0}; //命令行参数都以0结尾
         Log::I(ManagerService_TAG,"bindService execv: %s %s %s %s %s %s %s %s %s", nargv[0],nargv[1],nargv[2],nargv[3],nargv[4],nargv[5],nargv[6],nargv[7],nargv[8]);
         pid_t pid;
         pid = fork();
         switch (pid) {
             case 0:
-                execv("./bin/PeerNodeLauncher", nargv);
+            {
+                execvp("PeerNodeLauncher", nargv);
                 perror("exec");
                 exit(1);
                 break;
+            }
             case -1:
                 perror("fork");
                 exit(1);
@@ -151,7 +170,7 @@ namespace micro_service {
             default:
                 printf("exec is completed\n");
                 std::string service_info = "";
-                if (!library_path.empty()) {
+                if (!libraryName.empty()) {
                     //sleep 4s
                     std::this_thread::sleep_for(std::chrono::milliseconds(4000));
                     //read info file for service address info
@@ -337,15 +356,9 @@ namespace micro_service {
                                                      std::shared_ptr<ElaphantContact::Message> msgInfo) {
         auto text_data = dynamic_cast<ElaphantContact::Message::TextData*>(msgInfo->data.get());
         std::string content = text_data->toString();
-        try {
-            Json json = Json::parse(content);
-            std::string msg_content = json["content"];
-            printf("ManagerServiceMessageListener onReceivedMessage humanCode: %s,msg_content:%s \n", humanCode.c_str(), msg_content.c_str());
-            mManagerService->receiveMessage(humanCode,
-                                          msg_content, mManagerService->getTimeStamp());
-        } catch (const std::exception& e) {
-            printf("ManagerServiceMessageListener parse json failed\n");
-        }
+
+        mManagerService->receiveMessage(humanCode,
+                                      content, mManagerService->getTimeStamp());
     }
 
     extern "C" {
