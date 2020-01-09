@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(SOURCE_FILES
-        source/Tools/Log.hpp
-        source/Tools/Log.cpp
-        source/Common/FileUtils.cpp
-        source/Common/FileUtils.hpp
-        source/DataBase/DatabaseProxy.h
-        source/DataBase/DatabaseProxy.cpp
-        source/DataBase/ServiceInfo.h
-        source/DataBase/ServiceInfo.cpp
-        source/Command/ManagerServiceCmd.cpp
-        source/Command/ManagerServiceCmd.hpp
-        source/ThirdParty/CompatibleFileSystem.hpp
-        source/ThirdParty/ghc-filesystem.hpp
-        source/ManagerService.h
-        source/ManagerService.cpp
-        source/ErrCode.cpp
-        source/ErrCode.h)
+        Tools/Log.hpp
+        Tools/Log.cpp
+        Common/FileUtils.cpp
+        Common/FileUtils.hpp
+        DataBase/DatabaseProxy.h
+        DataBase/DatabaseProxy.cpp
+        DataBase/ServiceInfo.h
+        DataBase/ServiceInfo.cpp
+        Command/ManagerServiceCmd.cpp
+        Command/ManagerServiceCmd.hpp
+        ThirdParty/CompatibleFileSystem.hpp
+        ThirdParty/ghc-filesystem.hpp
+        ManagerService.h
+        ManagerService.cpp
+        ErrCode.cpp
+        ErrCode.h)
 INCLUDE_DIRECTORIES(source/)
 LINK_DIRECTORIES("source/")
 add_library(MicroServiceManager  SHARED )

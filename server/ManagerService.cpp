@@ -183,8 +183,8 @@ namespace micro_service {
                                service_info.c_str());
                         auto service_info_json = Json::parse(service_info.c_str());
                         //save data to db
-                        auto humaninfo = service_info_json["HumanInfo"];
-                        auto human_code  = humaninfo["HumanCode"];
+                        //auto humaninfo = service_info_json["HumanInfo"];
+                        auto human_code  = service_info_json["Did"];
                         mDatabaseProxy->setServiceInfo(friend_id, human_code, mnemonic,
                                                        info_path, data_path, this->getTimeStamp());
                     } else {
@@ -193,17 +193,17 @@ namespace micro_service {
                     }
                 }
                 //send msg to client
-                Json content;
-                content["status"] = ret_status;
-                content["msg"] = error_msg;
-                content["info"] = service_info;
-                content["service_name"] = service_name;
-                Json respJson;
-                respJson["serviceName"] = ManagerService_TAG;
-                respJson["type"] = "textMsg";
-                respJson["content"] = content;
-                std::string message = respJson.dump();
-                int ret = mConnector->SendMessage(friend_id, message);
+                Json result;
+                result["Status"] = ret_status;
+                result["Msg"] = error_msg;
+                result["Info"] = service_info;
+                result["Service"] = service_name;
+                //Json respJson;
+                //respJson["serviceName"] = ManagerService_TAG;
+                //respJson["type"] = "textMsg";
+                //respJson["content"] = content;
+                //std::string message = respJson.dump();
+                int ret = mConnector->SendMessage(friend_id, result.dump());
                 if (ret != 0) {
                     Log::I(ManagerService_TAG,
                            "startServiceInner .c_str(): %s error:%d",
