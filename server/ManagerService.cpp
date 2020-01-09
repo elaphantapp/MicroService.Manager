@@ -202,8 +202,8 @@ namespace micro_service {
                 //respJson["serviceName"] = ManagerService_TAG;
                 //respJson["type"] = "textMsg";
                 //respJson["content"] = content;
-                //std::string message = respJson.dump();
-                int ret = mConnector->SendMessage(friend_id, result.dump());
+                std::string message = result.dump();
+                int ret = mConnector->SendMessage(friend_id, message);
                 if (ret != 0) {
                     Log::I(ManagerService_TAG,
                            "startServiceInner .c_str(): %s error:%d",
