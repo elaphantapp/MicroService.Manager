@@ -12,7 +12,6 @@ android {
         }
     }
 }
-
 afterEvaluate {
     android{
         buildTypes.all {
