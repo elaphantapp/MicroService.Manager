@@ -1,0 +1,191 @@
+//package com.elastos.microservice.manager;
+//
+//import androidx.appcompat.app.AppCompatActivity;
+//
+//import android.app.Activity;
+//import android.content.Context;
+//import android.content.Intent;
+//import android.os.Bundle;
+//import android.os.Handler;
+//import android.os.Looper;
+//import android.text.method.ScrollingMovementMethod;
+//import android.util.Log;
+//import android.view.Menu;
+//import android.view.MenuItem;
+//
+//import org.elastos.sdk.elephantwallet.contact.Contact;
+//import org.json.JSONException;
+//import org.json.JSONObject;
+//
+//import android.os.Process;
+//import android.view.View;
+//import android.widget.Button;
+//import android.widget.CheckBox;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//
+//public class MainActivity extends Activity implements ContactApi.MsgListener {
+//    public static final String TAG = "MainActivity";
+//    private Context mContext;
+//    private Handler mMainHandler = new Handler(Looper.getMainLooper());
+//    private Button mCreateBtn;
+//    private Button mRestartBtn;
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//        mContext = this.getApplicationContext();
+//        mContactApi = new ContactApi(mContext, this);
+//        mContactApi.startContact();
+//        mCreateBtn = findViewById(R.id.createBtn);
+//        mCreateBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                createService();
+//            }
+//        });
+//        mRestartBtn = findViewById(R.id.restartBtn);
+//        mRestartBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                restartService();
+//            }
+//        });
+//        TextView txtCbMsg = findViewById(R.id.txt_event);
+//        txtCbMsg.setMovementMethod(ScrollingMovementMethod.getInstance());
+//    }
+//
+//    private void createService() {
+//        String friend_id = mContactApi.getFriendId();
+//        if (friend_id == null) {
+//            Toast.makeText(mContext, "server is not connected!", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        CheckBox checkBoxChatgroup = findViewById(R.id.chatgroup);
+//        if (checkBoxChatgroup.isChecked()) {
+//            JSONObject msg = new JSONObject();
+//            try {
+//                msg.put("serviceName", "ManagerService");
+//                msg.put("content","/c chatgroup");
+//                mContactApi.sendMessage(friend_id, msg.toString());
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        CheckBox checkBoxPersonalStorage = findViewById(R.id.personalstorage);
+//        if (checkBoxPersonalStorage.isChecked()) {
+//            JSONObject msg = new JSONObject();
+//            try {
+//                msg.put("serviceName", "ManagerService");
+//                msg.put("content","/c personalstorage");
+//                mContactApi.sendMessage(friend_id, msg.toString());
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        CheckBox checkBoxHashAddressMapping = findViewById(R.id.hashaddressmapping);
+//        if (checkBoxHashAddressMapping.isChecked()) {
+//            JSONObject msg = new JSONObject();
+//            try {
+//                msg.put("serviceName", "ManagerService");
+//                msg.put("content","/c hashaddressmapping");
+//                mContactApi.sendMessage(friend_id, msg.toString());
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    private void restartService() {
+//
+//    }
+//
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        super.onCreateOptionsMenu(menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == R.id.scan_qrcode) {
+//            scanUserInfo();
+//            return true;
+//        } else if (id == R.id.about_id) {
+//            showGetUserInfo();
+//            return true;
+//        } else if (id == R.id.clear_id) {
+//            clearEvent();
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+//
+//    private void clearEvent() {
+//        TextView txtCbMsg = findViewById(R.id.txt_event);
+//        txtCbMsg.setText("");
+//        txtCbMsg.invalidate();
+//    }
+//
+//    private String showGetUserInfo() {
+//        Contact.UserInfo info = mContactApi.getUserInfo();
+//        if (info == null) {
+//            return "Failed to get user info.";
+//        }
+//        Helper.showDetails(MainActivity.this, info.toJson());
+//        return info.toString();
+//    }
+//
+//    private String scanUserInfo() {
+//        Helper.scanAddress(this, result -> {
+//            Log.d(TAG, "result:" + result);
+//            Helper.showAddFriend(this, result, (summary) -> {
+//                int ret = mContactApi.addFriend(result, summary);
+//                if (ret < 0) {
+//                    Log.e(TAG, "Failed to add friend. ret=" + ret);
+//                }
+//            });
+//        });
+//        return "";
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        Helper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+//    }
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        Helper.onActivityResult(this, requestCode, resultCode, data);
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        mContactApi.stopContact();
+//        Process.killProcess(Process.myPid());
+//    }
+//
+//    @Override
+//    public void onReceive(String content) {
+//        //show content
+//        mMainHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                TextView txtCbMsg = findViewById(R.id.txt_event);
+//                String msg = txtCbMsg.getText().toString();
+//                msg += "\n";
+//                msg += content;
+//                txtCbMsg.setText(msg);
+//            }
+//        });
+//    }
+//}

@@ -1,3 +1,3 @@
 include ':sdk'
 include ':app'
-rootProject.name='ManagerService'
+rootProject.name='PeerNode.MicroService.Manager'

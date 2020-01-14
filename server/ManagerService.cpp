@@ -139,6 +139,8 @@ namespace micro_service {
             libraryName = "ChatGroupService";
         } else if (service_name_tolower == "hashaddressmapping") {
             libraryName = "HashAddressMappingService";
+        } else if (service_name_tolower == "feedback") {
+            libraryName = "FeedbackService";
         } else {
             ret_status = -1;
             error_msg = "error service name is unknown";
